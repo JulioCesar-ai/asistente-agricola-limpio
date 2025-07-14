@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/js/all.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asistente Agrícola Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-green-50 font-sans text-gray-800 p-4">
+    <!-- SIMULACIÓN DE SENSORES -->
+    <div class="p-4 bg-green-100 rounded-xl shadow-md text-center max-w-md mx-auto mt-6">
+        <h2 class="text-xl font-bold mb-4">📡 Datos del Cultivo (Simulados)</h2>
+        <div id="sensorData" class="space-y-2 text-lg">
+            <p>🌡️ Temperatura: <span id="temp">--</span> °C</p>
+            <p>💧 Humedad: <span id="hum">--</span> %</p>
+            <p>🌫️ CO₂: <span id="co2">--</span> ppm</p>
+        </div>
+    </div>
+
+    <!-- CHATBOT CON VOZ -->
+    <div class="p-4 bg-white rounded-xl shadow-md mt-6">
+        <h2 class="text-xl font-bold mb-4">🎙️ Asistente Agrícola Inteligente</h2>
+        <div id="chatBox" class="border h-40 overflow-y-auto p-2 rounded mb-2 bg-gray-50 text-sm"></div>
+        <div class="flex gap-2 items-center">
+            <input id="userInput" type="text" placeholder="Haz una pregunta sobre tu cultivo..." class="border rounded px-3 py-2 w-full" />
+            <button onclick="activarVoz()" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600">
+                🎤
+            </button>
+            <button onclick="enviarPregunta()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Enviar
+            </button>
+        </div>
+    </div>
+
+    <!-- SUBIR Y CLASIFICAR IMÁGENES -->
+    <div class="p-4 bg-white rounded-xl shadow-md mt-6" id="contenedorImagenes">
+        <h2 class="text-xl font-bold mb-4">🌱 Subir y Clasificar Hojas</h2>
+        <div class="flex flex-col gap-2">
+            <input type="file" id="inputImagen" accept="image/*" class="border rounded px-3 py-2" onchange="mostrarImagen(event)">
+            <label class="text-sm">Seleccionar modelo de visión:</label>
+            <select id="modeloVision" class="border rounded px-3 py-2">
+                <option value="yolov5s">YOLOv5 Small</option>
+                <option value="yolov5m">YOLOv5 Medium</option>
+            </select>
+            <img id="vistaPrevia" class="hidden mt-2 max-w-xs" alt="Vista previa de la imagen">
+            <button id="clasificarHoja" onclick="clasificarHoja()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-2">Clasificar Hoja</button>
+            <button id="predecirSalud" onclick="predecirSalud()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Predecir Salud</button>
+            <button id="recomendarAccion" onclick="recomendarAccion()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mt-2">Recomendar Acción</button>
+            <button id="hablarAsistente" onclick="hablarConAsistente()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mt-2">Hablar con Asistente</button>
+            <button onclick="enviarYOLO()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mt-2">🔍 Analizar Imagen con Visión Artificial</button>
+            <img id="imagenResultado" class="hidden mt-4 max-w-xs border rounded" alt="Resultado anotado">
+            <pre id="detecciones" class="text-xs bg-gray-100 p-2 rounded mt-2 overflow-x-auto"></pre>
+            <div id="resultado" class="mt-4 text-lg"></div>
+        </div>
+    </div>
+
+    <!-- Cargar script.js -->
+    <script src="script.js"></script>
+
+    <!-- Funciones específicas para index.html -->
+    <script>
+        function activarVoz() {
+            const reconocimiento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            reconocimiento.lang = "es-ES";
+
+            reconocimiento.onresult = function(event) {
+                const texto = event.results[0][0].transcript;
+                document.getElementById("userInput").value = texto;
+                enviarPregunta();
+            };
+
+            reconocimiento.onerror = function(event) {
+                console.error("Error de reconocimiento:", event.error);
+            };
+
+            reconocimiento.start();
+        }
+
+        function generarValor(min, max) {
+            return (Math.random() * (max - min) + min).toFixed(1);
+        }
+
+        function actualizarSensores() {
+            document.getElementById('temp').textContent = generarValor(20, 35);
+            document.getElementById('hum').textContent = generarValor(40, 90);
+            document.getElementById('co2').textContent = generarValor(300, 800);
+        }
+
+        setInterval(actualizarSensores, 5000);
+        actualizarSensores();
+    </script>
+</body>
+</html>
